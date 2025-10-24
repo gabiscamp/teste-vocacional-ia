@@ -1,39 +1,187 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background: #fdfdfd;
-  color: #222;
+/* Paleta de Cores: */
+/* Primária (Escura): #002147 (Azul Marinho) */
+/* Secundária (Ação/Destaque): #ff6600 (Laranja Vibrante) */
+/* Fundo: #f4f7f9 (Azul Claro Suave) */
+/* Cartões: #ffffff (Branco Puro) */
+
+:root {
+    --color-primary: #002147;
+    --color-secondary: #ff6600;
+    --color-background: #f4f7f9;
+    --color-text: #333333;
+    --border-radius: 12px;
 }
 
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+/* ---------------------------------- */
+/* HEADER E CONTEÚDO PRINCIPAL        */
+/* ---------------------------------- */
+
 header {
-  background: #ff6600;
-  color: white;
-  padding: 20px;
-  text-align: center;
+    background: var(--color-primary);
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    margin: 0 0 5px 0;
+    font-size: 2em;
+    font-weight: 700;
+}
+
+header p {
+    margin: 0;
+    opacity: 0.9;
 }
 
 main {
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 10px; /* Mais preenchimento nas laterais em mobile */
 }
 
-.pergunta {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+#testeForm {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
-button {
-  padding: 12px 24px;
-  background: #002147;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+/* ---------------------------------- */
+/* CARTÃO DE PERGUNTA E RESPONSIVIDADE */
+/* ---------------------------------- */
+
+.pergunta-card {
+    margin-bottom: 25px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    background-color: #ffffff;
+    transition: box-shadow 0.3s ease;
 }
 
-button:hover {
-  background: #003366;
+.pergunta-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.pergunta-card h2 {
+    color: var(--color-primary);
+    font-size: 1.15em;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--color-secondary); /* Linha de destaque */
+    margin-bottom: 15px;
+}
+
+/* ---------------------------------- */
+/* OPÇÕES DE RESPOSTA (MAIS BONITO)   */
+/* ---------------------------------- */
+
+.pergunta-card label {
+    display: block;
+    margin-bottom: 10px;
+    padding: 15px; /* Aumenta a área de toque para celular */
+    border: 2px solid #e0e0e0;
+    border-radius: 8px; /* Cantos arredondados nas opções */
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    user-select: none; /* Evita seleção de texto indesejada */
+}
+
+.pergunta-card label:hover {
+    background-color: #fff8f0; /* Fundo suave ao passar o mouse */
+    border-color: #ffaa70; /* Borda laranja clara */
+}
+
+/* Estilo para a opção SELECIONADA (destaque forte) */
+.pergunta-card input[type="radio"]:checked + label {
+    background-color: #fff0e5; /* Fundo mais claro */
+    border-color: var(--color-secondary); /* Borda laranja forte */
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+/* Oculta o radio button nativo para estilizar o próprio label */
+.pergunta-card input[type="radio"] {
+    /* Mantenha o input visível, mas estilizado para melhor acessibilidade */
+    /* Para focar no design, vamos estilizar ele como um círculo pequeno */
+    margin-right: 12px;
+    accent-color: var(--color-secondary); /* Mudar a cor do círculo do rádio */
+}
+
+/* ---------------------------------- */
+/* BOTÃO DE ENVIO                     */
+/* ---------------------------------- */
+
+#submitBtn {
+    width: 100%;
+    padding: 18px 24px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+    transition: background 0.3s, transform 0.1s;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0, 33, 71, 0.3); /* Sombra do botão */
+}
+
+#submitBtn:hover {
+    background: #003366;
+    transform: translateY(-2px); /* Efeito 3D sutil */
+}
+
+#submitBtn:disabled {
+    background: #aaaaaa;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ---------------------------------- */
+/* MENSAGEM DE STATUS                 */
+/* ---------------------------------- */
+
+#mensagem {
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid #ccc;
+}
+
+/* Cores específicas de sucesso/erro */
+.mensagem-sucesso {
+    background-color: #e6ffed; /* Verde claro */
+    border-color: #a4e4b5;
+    color: #1a7d3a;
+}
+
+.mensagem-erro {
+    background-color: #ffe6e6; /* Vermelho claro */
+    border-color: #ffb8b8;
+    color: #b30000;
+}
+.hidden {
+    display: none;
+}
+
+/* ---------------------------------- */
+/* RESPONSIVIDADE PARA DESKTOPS       */
+/* ---------------------------------- */
+@media (min-width: 900px) {
+    main {
+        padding: 30px;
+    }
 }
