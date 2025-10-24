@@ -1,0 +1,9 @@
+[build]
+  publish = "src" # A pasta raiz do seu site
+  functions = "netlify/functions" # Onde as funções estão localizadas
+
+# Redirecionamento para chamar o proxy
+[[redirects]]
+  from = "/api/respostas/*"
+  to = "/.netlify/functions/proxy"
+  status = 200
