@@ -1,5 +1,3 @@
-
-
 const fetch = require('node-fetch');
 
 const APPS_SCRIPT_WEBAPP_URL = process.env.VITE_APPS_SCRIPT_URL; 

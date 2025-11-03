@@ -1,4 +1,3 @@
-
 const API_ENDPOINT = "/api/respostas";
 
 const form = document.getElementById("testeForm");
@@ -15,7 +14,6 @@ form.addEventListener("submit", async (e) => {
     const formData = new FormData(e.target);
     const respostas = {};
 
-    // Coleta todas as respostas no objeto
     formData.forEach((valor, chave) => {
         respostas[chave] = valor;
     });
@@ -31,13 +29,11 @@ form.addEventListener("submit", async (e) => {
 
         if (response.ok && data.message && data.message.includes("sucesso")) {
             mensagemDiv.innerText = `Sucesso! ${data.message}`;
-            // Adiciona classe de sucesso
             mensagemDiv.className = 'mensagem-sucesso';
             form.reset();
         } else {
             const msgErro = data.error || data.message || 'Erro desconhecido.';
             mensagemDiv.innerText = `Erro: ${msgErro}.`;
-            // Adiciona classe de erro
             mensagemDiv.className = 'mensagem-erro';
         }
 
@@ -50,7 +46,6 @@ form.addEventListener("submit", async (e) => {
     }
 });
 
-// Função de exemplo para a IA buscar dados (pode ser chamada de um script Python externo)
 async function fetchDataForIA() {
     try {
         const response = await fetch(API_ENDPOINT, { method: "GET" });
