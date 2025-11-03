@@ -1,9 +1,3 @@
-/* Paleta de Cores: */
-/* Primária (Escura): #002147 (Azul Marinho) */
-/* Secundária (Ação/Destaque): #ff6600 (Laranja Vibrante) */
-/* Fundo: #f4f7f9 (Azul Claro Suave) */
-/* Cartões: #ffffff (Branco Puro) */
-
 :root {
     --color-primary: #002147;
     --color-secondary: #ff6600;
@@ -19,10 +13,6 @@ body {
     color: var(--color-text);
     line-height: 1.6;
 }
-
-/* ---------------------------------- */
-/* HEADER E CONTEÚDO PRINCIPAL        */
-/* ---------------------------------- */
 
 header {
     background: var(--color-primary);
@@ -46,7 +36,7 @@ header p {
 main {
     max-width: 900px;
     margin: 30px auto;
-    padding: 10px; /* Mais preenchimento nas laterais em mobile */
+    padding: 10px; 
 }
 
 #testeForm {
@@ -55,10 +45,6 @@ main {
     border-radius: var(--border-radius);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
-
-/* ---------------------------------- */
-/* CARTÃO DE PERGUNTA E RESPONSIVIDADE */
-/* ---------------------------------- */
 
 .pergunta-card {
     margin-bottom: 25px;
@@ -78,49 +64,38 @@ main {
     font-size: 1.15em;
     margin-top: 0;
     padding-bottom: 10px;
-    border-bottom: 2px solid var(--color-secondary); /* Linha de destaque */
+    border-bottom: 2px solid var(--color-secondary); 
     margin-bottom: 15px;
 }
-
-/* ---------------------------------- */
-/* OPÇÕES DE RESPOSTA (MAIS BONITO)   */
-/* ---------------------------------- */
 
 .pergunta-card label {
     display: block;
     margin-bottom: 10px;
-    padding: 15px; /* Aumenta a área de toque para celular */
+    padding: 15px;
     border: 2px solid #e0e0e0;
-    border-radius: 8px; /* Cantos arredondados nas opções */
+    border-radius: 8px; 
     cursor: pointer;
     transition: background-color 0.2s, border-color 0.2s;
-    user-select: none; /* Evita seleção de texto indesejada */
+    user-select: none; 
 }
 
 .pergunta-card label:hover {
-    background-color: #fff8f0; /* Fundo suave ao passar o mouse */
-    border-color: #ffaa70; /* Borda laranja clara */
+    background-color: #fff8f0; 
+    border-color: #ffaa70; 
 }
 
-/* Estilo para a opção SELECIONADA (destaque forte) */
+
 .pergunta-card input[type="radio"]:checked + label {
-    background-color: #fff0e5; /* Fundo mais claro */
-    border-color: var(--color-secondary); /* Borda laranja forte */
+    background-color: #fff0e5;
+    border-color: var(--color-secondary); 
     font-weight: 600;
     color: var(--color-primary);
 }
 
-/* Oculta o radio button nativo para estilizar o próprio label */
 .pergunta-card input[type="radio"] {
-    /* Mantenha o input visível, mas estilizado para melhor acessibilidade */
-    /* Para focar no design, vamos estilizar ele como um círculo pequeno */
     margin-right: 12px;
-    accent-color: var(--color-secondary); /* Mudar a cor do círculo do rádio */
+    accent-color: var(--color-secondary);
 }
-
-/* ---------------------------------- */
-/* BOTÃO DE ENVIO                     */
-/* ---------------------------------- */
 
 #submitBtn {
     width: 100%;
@@ -134,12 +109,12 @@ main {
     font-weight: 700;
     transition: background 0.3s, transform 0.1s;
     margin-top: 20px;
-    box-shadow: 0 4px 10px rgba(0, 33, 71, 0.3); /* Sombra do botão */
+    box-shadow: 0 4px 10px rgba(0, 33, 71, 0.3); 
 }
 
 #submitBtn:hover {
     background: #003366;
-    transform: translateY(-2px); /* Efeito 3D sutil */
+    transform: translateY(-2px); 
 }
 
 #submitBtn:disabled {
@@ -147,10 +122,6 @@ main {
     cursor: not-allowed;
     box-shadow: none;
 }
-
-/* ---------------------------------- */
-/* MENSAGEM DE STATUS                 */
-/* ---------------------------------- */
 
 #mensagem {
     padding: 15px;
@@ -161,15 +132,14 @@ main {
     border: 1px solid #ccc;
 }
 
-/* Cores específicas de sucesso/erro */
 .mensagem-sucesso {
-    background-color: #e6ffed; /* Verde claro */
+    background-color: #e6ffed; 
     border-color: #a4e4b5;
     color: #1a7d3a;
 }
 
 .mensagem-erro {
-    background-color: #ffe6e6; /* Vermelho claro */
+    background-color: #ffe6e6;
     border-color: #ffb8b8;
     color: #b30000;
 }
@@ -177,9 +147,6 @@ main {
     display: none;
 }
 
-/* ---------------------------------- */
-/* RESPONSIVIDADE PARA DESKTOPS       */
-/* ---------------------------------- */
 @media (min-width: 900px) {
     main {
         padding: 30px;
