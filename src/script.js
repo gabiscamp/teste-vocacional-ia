@@ -1,5 +1,4 @@
-// A URL que você chama é o endpoint do PROXY no Netlify!
-// O Netlify, graças ao netlify.toml, irá redirecionar para a Function proxy.js
+
 const API_ENDPOINT = "/api/respostas";
 
 const form = document.getElementById("testeForm");
