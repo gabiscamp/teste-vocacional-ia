@@ -1,4 +1,4 @@
-const RENDER_PREDICT_URL = "https://SEU-RENDER-URL.onrender.com/predict"; 
+const RENDER_PREDICT_URL = "https://teste-vocacional-ia-stage.onrender.com/predict"; 
 const form = document.getElementById('finalTestForm');
 const questionSteps = document.querySelectorAll('.question-step');
 const progressBar = document.getElementById('progressBar');
