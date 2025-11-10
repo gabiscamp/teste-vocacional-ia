@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Vocacional | Administrador</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="home.html">Teste Vocacional</a>
+            <a href="login.html" class="active">ADMINISTRADOR</a>
+            <a href="teste.html">TESTE</a>
+        </div>
+    </nav>
+
+    <section id="admin-panel" class="admin-panel">
+        <div class="container">
+            <h2>ADMINISTRADOR</h2>
+
+            <div class="search-bar-container">
+                <input type="search" placeholder="Buscar..." class="search-input">
+                <button class="search-btn">🔍</button>
+            </div>
+
+            <div class="area-tags">
+                <span class="tag">Estética</span>
+                <span class="tag">Recursos Humanos</span>
+                <span class="tag">Administração</span>
+                <span class="tag">Tecnologia da Informação</span>
+                <span class="tag">Enfermagem</span>
+                <span class="tag">Logística</span>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="report-area">
+                    <h3>Relatórios e Ações</h3>
+                    <button id="exportReportBtn" class="btn-primary" style="margin-bottom: 20px;">
+                        Exportar Relatório Completo (JSON)
+                    </button>
+                    
+                    <div class="large-data-box">
+                        <p id="total-records-info">Total de Registros Coletados: Carregando...</p>
+                        <p>Visualização de Dados em Tempo Real (Via Looker Studio/Gráficos JS)</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Distribuição de Perfis</h3>
+                    <div class="chart-placeholder">
+                        <canvas id="profileChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="script_admin.js"></script> 
+</body>
+</html>
