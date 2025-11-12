@@ -127,37 +127,41 @@ function renderChart(data) {
 async function fetchAndRenderDashboard() {
     let rawData;
     try {
-        const response = await fetch(NETLIFY_PROXY_GET_URL);
+        // Fetch com redirecionamento padrão, que o Apps Script exige
+        const response = await fetch(NETLIFY_PROXY_GET_URL); 
         
-        // 1. Verificar se a resposta HTTP está OK
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+             throw new Error(`HTTP error! status: ${response.status} (Verifique se o Apps Script foi re-implantado!)`);
         }
 
-        // 2. Tentar ler como JSON
         const responseText = await response.text();
-        // O Apps Script pode retornar 'null' ou uma string vazia se falhar
-        if (!responseText || responseText === 'null') {
-            throw new Error("Resposta vazia ou inválida do Apps Script.");
+        
+        // 1. Loga a resposta bruta para inspeção
+        console.log("Resposta bruta do Apps Script:", responseText); 
+        
+        // 2. Verificação de conteúdo vazio/inválido
+        if (!responseText || responseText.length < 5 || responseText.toLowerCase().includes('html') || responseText.toLowerCase().includes('erro')) {
+            throw new Error("Resposta inválida. Conteúdo não parece ser JSON de planilha.");
         }
         
+        // 3. Tenta processar o JSON (o ponto de falha)
         rawData = JSON.parse(responseText); 
         
-        // 3. Processar e Renderizar
+        // 4. Processar e Renderizar
         if (rawData && rawData.length > 1) {
             const courseCounts = processData(rawData);
             renderChart(courseCounts);
+            document.getElementById('totalRegisters').textContent = `${rawData.length - 1} Registros Coletados.`; // Exibe total
         } else {
             document.getElementById('chart-area-placeholder').innerHTML = '<p>Ainda não há dados suficientes para gerar o relatório.</p>';
         }
 
     } catch (error) {
         // Exibir o erro detalhado no console e a mensagem de erro
-        console.error("Erro no Fetch/JSON:", error);
-        document.getElementById('chart-area-placeholder').innerHTML = `<p>Erro ao carregar dados do servidor. Detalhe: ${error.message}</p>`;
+        console.error("ERRO DE CARREGAMENTO DO DASHBOARD:", error);
+        document.getElementById('chart-area-placeholder').innerHTML = `<p>Erro ao carregar dados do servidor. Detalhe: ${error.message}.</p>`;
     }
 }
-
 
 function handleExport() {
     window.open(NETLIFY_PROXY_GET_URL, '_blank');
