@@ -1,4 +1,4 @@
-const NETLIFY_PROXY_GET_URL = "/api/respostas";
+const NETLIFY_PROXY_GET_URL = "https://script.google.com/macros/s/AKfycbyBPFQ73lT4o5OdPSJktClb69l0OmtTAJpZPQKpdfi7zmSwtK0pnIg2AT7NxLAfgstv/exec";
 const LOGIN_STORAGE_KEY = "admin_logged_in";
 
 function checkAdminSession() {
