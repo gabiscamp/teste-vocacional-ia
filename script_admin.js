@@ -76,22 +76,17 @@ function processData(rawData) {
 }
 
 function renderChart(data) {
-    // CORREÇÃO: Usa o ID 'profileChart' que está no HTML
-    const ctx = document.getElementById('courseChart').getContext('2d'); 
-    
+    const ctx = document.getElementById('courseChart').getContext('2d');
     const courses = Object.keys(data);
     const counts = Object.values(data);
     
-    // CORREÇÃO: Calcula o total de registros SOMA das contagens
-    const totalRegistros = counts.reduce((sum, count) => sum + count, 0);
-
     const backgroundColors = [
-        'rgba(0, 33, 71, 0.8)',
-        'rgba(245, 130, 32, 0.8)',
-        'rgba(140, 140, 140, 0.8)',
-        'rgba(50, 200, 50, 0.8)',
-        'rgba(200, 50, 50, 0.8)',
-        'rgba(255, 206, 86, 0.8)'
+        'rgba(0, 33, 71, 0.8)', // Azul Secundário (TI, ADM)
+        'rgba(245, 130, 32, 0.8)', // Laranja Primário (Estética)
+        'rgba(140, 140, 140, 0.8)', // Cinza (Logística)
+        'rgba(50, 200, 50, 0.8)', // Verde (Enfermagem)
+        'rgba(200, 50, 50, 0.8)', // Vermelho/Rosa (RH)
+        'rgba(255, 206, 86, 0.8)' // Amarelo (Outros)
     ];
 
     new Chart(ctx, {
@@ -118,8 +113,7 @@ function renderChart(data) {
                 },
                 title: {
                     display: true,
-                    // CORREÇÃO: Usa o totalRegistros calculado
-                    text: `Distribuição de Perfis (${totalRegistros} Registros)`,
+                    text: `Distribuição de Perfis (${dataRows.length} Registros)`,
                     font: {
                         family: 'Georgia',
                         size: 16
@@ -133,6 +127,7 @@ function renderChart(data) {
 async function fetchAndRenderDashboard() {
     let rawData;
     try {
+        // Fetch com redirecionamento padrão, que o Apps Script exige
         const response = await fetch(NETLIFY_PROXY_GET_URL); 
         
         if (!response.ok) {
@@ -141,23 +136,22 @@ async function fetchAndRenderDashboard() {
 
         const responseText = await response.text();
         
+        // 1. Loga a resposta bruta para inspeção
         console.log("Resposta bruta do Apps Script:", responseText); 
         
-        if (responseText.toLowerCase().includes('<html') || responseText.toLowerCase().includes('erro') || responseText.length < 5) {
-             throw new Error("Conteúdo inválido. Google retornou HTML ou erro.");
+        // 2. Verificação de conteúdo vazio/inválido
+        if (!responseText || responseText.length < 5 || responseText.toLowerCase().includes('html') || responseText.toLowerCase().includes('erro')) {
+            throw new Error("Resposta inválida. Conteúdo não parece ser JSON de planilha.");
         }
         
+        // 3. Tenta processar o JSON (o ponto de falha)
         rawData = JSON.parse(responseText); 
         
-        // Processar e Renderizar
+        // 4. Processar e Renderizar
         if (rawData && rawData.length > 1) {
-            // CORREÇÃO: Passa rawData para processData. O retorno de processData é 'courseCounts'
-            const courseCounts = processData(rawData); 
+            const courseCounts = processData(rawData);
             renderChart(courseCounts);
-            
-            // ATUALIZA O TOTAL DE REGISTROS NA INTERFACE (rawData.length - 1 = número de linhas de dados)
-            document.getElementById('totalRegisters').textContent = `${rawData.length - 1} Registros Coletados.`; 
-            
+            document.getElementById('totalRegisters').textContent = `${rawData.length - 1} Registros Coletados.`; // Exibe total
         } else {
             document.getElementById('chart-area-placeholder').innerHTML = '<p>Ainda não há dados suficientes para gerar o relatório.</p>';
         }
@@ -168,6 +162,7 @@ async function fetchAndRenderDashboard() {
         document.getElementById('chart-area-placeholder').innerHTML = `<p>Erro ao carregar dados do servidor. Detalhe: ${error.message}.</p>`;
     }
 }
+
 function handleExport() {
     window.open(NETLIFY_PROXY_GET_URL, '_blank');
 }
