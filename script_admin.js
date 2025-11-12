@@ -125,10 +125,25 @@ function renderChart(data) {
 }
 
 async function fetchAndRenderDashboard() {
+    let rawData;
     try {
         const response = await fetch(NETLIFY_PROXY_GET_URL);
-        const rawData = await response.json();
         
+        // 1. Verificar se a resposta HTTP está OK
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // 2. Tentar ler como JSON
+        const responseText = await response.text();
+        // O Apps Script pode retornar 'null' ou uma string vazia se falhar
+        if (!responseText || responseText === 'null') {
+            throw new Error("Resposta vazia ou inválida do Apps Script.");
+        }
+        
+        rawData = JSON.parse(responseText); 
+        
+        // 3. Processar e Renderizar
         if (rawData && rawData.length > 1) {
             const courseCounts = processData(rawData);
             renderChart(courseCounts);
@@ -137,9 +152,12 @@ async function fetchAndRenderDashboard() {
         }
 
     } catch (error) {
-        document.getElementById('chart-area-placeholder').innerHTML = '<p>Erro ao carregar dados do servidor. Verifique o console.</p>';
+        // Exibir o erro detalhado no console e a mensagem de erro
+        console.error("Erro no Fetch/JSON:", error);
+        document.getElementById('chart-area-placeholder').innerHTML = `<p>Erro ao carregar dados do servidor. Detalhe: ${error.message}</p>`;
     }
 }
+
 
 function handleExport() {
     window.open(NETLIFY_PROXY_GET_URL, '_blank');
