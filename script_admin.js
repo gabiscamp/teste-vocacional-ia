@@ -77,7 +77,7 @@ function processData(rawData) {
 
 function renderChart(data) {
     // CORREÇÃO: Usa o ID 'profileChart' que está no HTML
-    const ctx = document.getElementById('profileChart').getContext('2d'); 
+    const ctx = document.getElementById('courseChart').getContext('2d'); 
     
     const courses = Object.keys(data);
     const counts = Object.values(data);
