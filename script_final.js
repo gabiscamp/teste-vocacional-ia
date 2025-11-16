@@ -1,4 +1,5 @@
 const RENDER_PREDICT_URL = "https://teste-vocacional-ia-stage.onrender.com/predict"; 
+const URL_COLETA_SHEETS = "https://teste-vocacional-ia.netlify.app/api/respostas"; 
 const form = document.getElementById('finalTestForm');
 const questionSteps = document.querySelectorAll('.question-step');
 const progressBar = document.getElementById('progressBar');
@@ -99,25 +100,35 @@ form.addEventListener('submit', async (e) => {
     document.getElementById('resultText').textContent = 'Analisando suas respostas com a IA...';
 
     try {
-        const response = await fetch(RENDER_PREDICT_URL, {
+        const predictionPromise = fetch(RENDER_PREDICT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(respostas)
         });
+
+        fetch(URL_COLETA_SHEETS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(respostas)
+        }).catch(error => {
+            console.error('AVISO: Falha silenciosa ao salvar dados no Google Sheets:', error);
+        }); 
+
+        const response = await predictionPromise;
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const data = await response.json();
-        
+
         resultMessage.classList.add('hidden'); 
         finalResultScreen.classList.remove('hidden'); 
         
         if (data.predicted_course) {
             document.getElementById('predicted-course').textContent = data.predicted_course;
         } else {
-            document.getElementById('predicted-course').textContent = 'Análise inconclusiva. (Erro nos dados da IA)';
+            document.getElementById('predicted-course').textContent = 'Análise inconclusiva.';
             document.querySelector('#final-result-screen .result-title').textContent = 'Falha na Análise';
         }
 
