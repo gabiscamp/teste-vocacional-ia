@@ -63,6 +63,29 @@ document.querySelectorAll('.btn-prev').forEach(button => {
     });
 });
 
+
+function saveToSheets(data) {
+    const tempForm = document.createElement('form');
+    tempForm.target = 'hidden_iframe'; 
+    tempForm.method = 'POST';
+    tempForm.action = URL_COLETA_SHEETS; 
+    
+    Object.keys(data).forEach(key => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = data[key];
+        tempForm.appendChild(input);
+    });
+    
+    // Anexa e envia
+    document.body.appendChild(tempForm);
+    tempForm.submit();
+    document.body.removeChild(tempForm);
+    
+    console.log("AVISO: Dados enviados para o Google Sheets via iframe. Verifique a planilha.");
+}
+
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -106,15 +129,10 @@ form.addEventListener('submit', async (e) => {
             body: JSON.stringify(respostas)
         });
 
-        fetch(URL_COLETA_SHEETS, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(respostas)
-        }).catch(error => {
-            console.error('AVISO: Falha silenciosa ao salvar dados no Google Sheets:', error);
-        }); 
+      
+        saveToSheets(respostas); 
 
+  
         const response = await predictionPromise;
 
         if (!response.ok) {
@@ -122,7 +140,7 @@ form.addEventListener('submit', async (e) => {
         }
 
         const data = await response.json();
-
+        
         resultMessage.classList.add('hidden'); 
         finalResultScreen.classList.remove('hidden'); 
         
@@ -130,7 +148,7 @@ form.addEventListener('submit', async (e) => {
             document.getElementById('predicted-course').textContent = data.predicted_course;
         } else {
             document.getElementById('predicted-course').textContent = 'Análise inconclusiva.';
-            document.querySelector('#final-result-screen .result-title').textContent = 'Falha na Análise';
+            document.querySelector('.result-title').textContent = 'Falha na Análise';
         }
 
     } catch (error) {
