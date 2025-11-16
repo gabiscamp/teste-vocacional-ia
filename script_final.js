@@ -1,5 +1,5 @@
 const RENDER_PREDICT_URL = "https://teste-vocacional-ia-stage.onrender.com/predict"; 
-const URL_COLETA_SHEETS = "https://teste-vocacional-ia.netlify.app/api/respostas"; 
+const URL_COLETA_SHEETS = "https://script.google.com/macros/s/AKfycbyBPFQ73lT4o5OdPSJktClb69l0OmtTAJpZPQKpdfi7zmSwtK0pnIg2AT7NxLAfgstv/exec"; 
 const form = document.getElementById('finalTestForm');
 const questionSteps = document.querySelectorAll('.question-step');
 const progressBar = document.getElementById('progressBar');
@@ -108,6 +108,7 @@ form.addEventListener('submit', async (e) => {
 
         fetch(URL_COLETA_SHEETS, {
             method: 'POST',
+            mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(respostas)
         }).catch(error => {
