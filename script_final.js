@@ -61,12 +61,11 @@ document.querySelectorAll('.btn-prev').forEach(button => {
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    questionSteps[totalSteps - 1].classList.add('hidden');
-    resultMessage.classList.remove('hidden');
-    document.getElementById('resultText').textContent = 'Analisando suas respostas com a IA...';
-
+    
+    // 1. Coleta e Validação (A parte crítica)
     const formData = new FormData(e.target);
     const respostas = {};
+    let allAnswered = true;
     
     for (let i = 1; i <= totalSteps; i++) {
         const key = `q${i}`;
@@ -74,12 +73,30 @@ form.addEventListener('submit', async (e) => {
         if (value) {
             respostas[key] = value;
         } else {
-            resultMessage.classList.add('mensagem-erro');
-            document.getElementById('resultText').textContent = 'Erro: Respostas incompletas. Volte e preencha todas.';
-            return;
+            allAnswered = false;
+            // Se falhar, retorna para a questão que não foi respondida
+            showStep(i - 1); 
+            break;
         }
     }
 
+    if (!allAnswered) {
+        // Exibe mensagem de erro e interrompe
+        resultMessage.classList.remove('hidden');
+        resultMessage.classList.add('mensagem-erro');
+        document.getElementById('resultText').textContent = 'Erro: Respostas incompletas. Por favor, volte e preencha a questão marcada.';
+        // Oculta a tela de resultado final
+        finalResultScreen.classList.add('hidden'); 
+        return; 
+    }
+    
+    // 2. Transição de Tela e Status de Análise
+    questionSteps[totalSteps - 1].classList.add('hidden');
+    resultMessage.classList.remove('hidden');
+    resultMessage.classList.remove('mensagem-erro');
+    document.getElementById('resultText').textContent = 'Analisando suas respostas com a IA...';
+
+    // 3. Chamada à API (Render)
     try {
         const response = await fetch(RENDER_PREDICT_URL, {
             method: 'POST',
@@ -87,21 +104,32 @@ form.addEventListener('submit', async (e) => {
             body: JSON.stringify(respostas)
         });
 
+        // Verifica se a resposta HTTP é 2xx
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const data = await response.json();
         
+        // 4. Exibir Resultado
         resultMessage.classList.add('hidden'); 
         finalResultScreen.classList.remove('hidden');
         
-        if (response.ok && data.predicted_course) {
+        if (data.predicted_course) {
             document.getElementById('predicted-course').textContent = data.predicted_course;
         } else {
-            document.getElementById('predicted-course').textContent = 'Erro na previsão. Tente novamente.';
-            document.querySelector('#final-result-screen .result-title').textContent = 'Falha na Análise';
+            // Caso o Render retorne OK, mas o JSON esteja incompleto
+            document.getElementById('predicted-course').textContent = 'Análise inconclusiva.';
+            document.querySelector('#final-result-screen .result-title').textContent = 'Falha na Análise (Dados)';
         }
 
     } catch (error) {
+        // 5. Tratamento de Erro de Rede ou Servidor
+        resultMessage.classList.remove('hidden');
         resultMessage.classList.add('mensagem-erro');
-        document.getElementById('resultText').textContent = 'Erro de rede. Verifique a URL do Render.';
+        document.getElementById('resultText').textContent = `Erro de conexão ou servidor. Detalhe: ${error.message}`;
+        // Loga para debug
+        console.error("ERRO CRÍTICO NA PREVISÃO:", error);
     }
 });
 
