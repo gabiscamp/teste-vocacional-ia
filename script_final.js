@@ -66,16 +66,17 @@ form.addEventListener('submit', async (e) => {
     const formData = new FormData(e.target);
     const respostas = {};
     let allAnswered = true;
+    let missingQuestionIndex = -1;
     
     for (let i = 1; i <= totalSteps; i++) {
         const key = `q${i}`;
         const value = formData.get(key);
+        
         if (value) {
             respostas[key] = value;
         } else {
             allAnswered = false;
-            // Se falhar, retorna para a questão que não foi respondida
-            showStep(i - 1); 
+            missingQuestionIndex = i - 1; // Índice do passo que falhou
             break;
         }
     }
@@ -84,9 +85,9 @@ form.addEventListener('submit', async (e) => {
         // Exibe mensagem de erro e interrompe
         resultMessage.classList.remove('hidden');
         resultMessage.classList.add('mensagem-erro');
-        document.getElementById('resultText').textContent = 'Erro: Respostas incompletas. Por favor, volte e preencha a questão marcada.';
-        // Oculta a tela de resultado final
+        document.getElementById('resultText').textContent = `Erro: A questão ${missingQuestionIndex + 1} não foi respondida. Por favor, volte e preencha.`;
         finalResultScreen.classList.add('hidden'); 
+        showStep(missingQuestionIndex); // Volta para a questão faltante
         return; 
     }
     
@@ -118,9 +119,9 @@ form.addEventListener('submit', async (e) => {
         if (data.predicted_course) {
             document.getElementById('predicted-course').textContent = data.predicted_course;
         } else {
-            // Caso o Render retorne OK, mas o JSON esteja incompleto
-            document.getElementById('predicted-course').textContent = 'Análise inconclusiva.';
-            document.querySelector('#final-result-screen .result-title').textContent = 'Falha na Análise (Dados)';
+            // Caso o Render retorne OK, mas o JSON esteja incompleto ou falho
+            document.getElementById('predicted-course').textContent = 'Análise inconclusiva. (Erro nos dados da IA)';
+            document.querySelector('#final-result-screen .result-title').textContent = 'Falha na Análise';
         }
 
     } catch (error) {
