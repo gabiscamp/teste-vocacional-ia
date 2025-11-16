@@ -5,8 +5,8 @@ const progressBar = document.getElementById('progressBar');
 const resultMessage = document.getElementById('result-message');
 const questionTitle = document.getElementById('question-title');
 const finalResultScreen = document.getElementById('final-result-screen');
-let currentStep = 0;
 const totalSteps = questionSteps.length;
+let currentStep = 0;
 
 function updateProgress() {
     const progress = currentStep < totalSteps ? ((currentStep + 1) / totalSteps) * 100 : 100;
@@ -62,12 +62,12 @@ document.querySelectorAll('.btn-prev').forEach(button => {
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    // 1. Coleta e Validação (A parte crítica)
     const formData = new FormData(e.target);
     const respostas = {};
     let allAnswered = true;
     let missingQuestionIndex = -1;
     
+    // Coleta e Validação (AGORA COM TOTAL STEPS = 25)
     for (let i = 1; i <= totalSteps; i++) {
         const key = `q${i}`;
         const value = formData.get(key);
@@ -76,28 +76,27 @@ form.addEventListener('submit', async (e) => {
             respostas[key] = value;
         } else {
             allAnswered = false;
-            missingQuestionIndex = i - 1; // Índice do passo que falhou
+            missingQuestionIndex = i - 1; 
             break;
         }
     }
 
     if (!allAnswered) {
-        // Exibe mensagem de erro e interrompe
         resultMessage.classList.remove('hidden');
         resultMessage.classList.add('mensagem-erro');
         document.getElementById('resultText').textContent = `Erro: A questão ${missingQuestionIndex + 1} não foi respondida. Por favor, volte e preencha.`;
         finalResultScreen.classList.add('hidden'); 
-        showStep(missingQuestionIndex); // Volta para a questão faltante
+        showStep(missingQuestionIndex);
         return; 
     }
     
-    // 2. Transição de Tela e Status de Análise
+    // Transição de Tela e Status de Análise
     questionSteps[totalSteps - 1].classList.add('hidden');
     resultMessage.classList.remove('hidden');
     resultMessage.classList.remove('mensagem-erro');
     document.getElementById('resultText').textContent = 'Analisando suas respostas com a IA...';
 
-    // 3. Chamada à API (Render)
+    // Chamada à API (Render)
     try {
         const response = await fetch(RENDER_PREDICT_URL, {
             method: 'POST',
@@ -105,14 +104,13 @@ form.addEventListener('submit', async (e) => {
             body: JSON.stringify(respostas)
         });
 
-        // Verifica se a resposta HTTP é 2xx
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const data = await response.json();
         
-        // 4. Exibir Resultado
+        // Exibir Resultado
         resultMessage.classList.add('hidden'); 
         finalResultScreen.classList.remove('hidden');
         
@@ -125,11 +123,10 @@ form.addEventListener('submit', async (e) => {
         }
 
     } catch (error) {
-        // 5. Tratamento de Erro de Rede ou Servidor
+        // Tratamento de Erro de Rede ou Servidor
         resultMessage.classList.remove('hidden');
         resultMessage.classList.add('mensagem-erro');
         document.getElementById('resultText').textContent = `Erro de conexão ou servidor. Detalhe: ${error.message}`;
-        // Loga para debug
         console.error("ERRO CRÍTICO NA PREVISÃO:", error);
     }
 });
