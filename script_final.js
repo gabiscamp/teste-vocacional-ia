@@ -23,6 +23,9 @@ function updateProgress() {
 
 function showStep(stepIndex) {
     stepIndex = Math.max(0, Math.min(stepIndex, totalSteps - 1));
+    finalResultScreen.classList.add('hidden'); 
+    resultMessage.classList.add('hidden');
+
     questionSteps.forEach((step, index) => {
         step.classList.add('hidden');
         if (index === stepIndex) {
@@ -67,7 +70,6 @@ form.addEventListener('submit', async (e) => {
     let allAnswered = true;
     let missingQuestionIndex = -1;
     
-    // Coleta e Validação (AGORA COM TOTAL STEPS = 25)
     for (let i = 1; i <= totalSteps; i++) {
         const key = `q${i}`;
         const value = formData.get(key);
@@ -86,17 +88,16 @@ form.addEventListener('submit', async (e) => {
         resultMessage.classList.add('mensagem-erro');
         document.getElementById('resultText').textContent = `Erro: A questão ${missingQuestionIndex + 1} não foi respondida. Por favor, volte e preencha.`;
         finalResultScreen.classList.add('hidden'); 
-        showStep(missingQuestionIndex);
+        showStep(missingQuestionIndex); 
         return; 
     }
     
-    // Transição de Tela e Status de Análise
-    questionSteps[totalSteps - 1].classList.add('hidden');
+
+    questionSteps[totalSteps - 1].classList.add('hidden'); 
     resultMessage.classList.remove('hidden');
     resultMessage.classList.remove('mensagem-erro');
     document.getElementById('resultText').textContent = 'Analisando suas respostas com a IA...';
 
-    // Chamada à API (Render)
     try {
         const response = await fetch(RENDER_PREDICT_URL, {
             method: 'POST',
@@ -110,20 +111,17 @@ form.addEventListener('submit', async (e) => {
 
         const data = await response.json();
         
-        // Exibir Resultado
         resultMessage.classList.add('hidden'); 
-        finalResultScreen.classList.remove('hidden');
+        finalResultScreen.classList.remove('hidden'); 
         
         if (data.predicted_course) {
             document.getElementById('predicted-course').textContent = data.predicted_course;
         } else {
-            // Caso o Render retorne OK, mas o JSON esteja incompleto ou falho
             document.getElementById('predicted-course').textContent = 'Análise inconclusiva. (Erro nos dados da IA)';
             document.querySelector('#final-result-screen .result-title').textContent = 'Falha na Análise';
         }
 
     } catch (error) {
-        // Tratamento de Erro de Rede ou Servidor
         resultMessage.classList.remove('hidden');
         resultMessage.classList.add('mensagem-erro');
         document.getElementById('resultText').textContent = `Erro de conexão ou servidor. Detalhe: ${error.message}`;
@@ -132,5 +130,6 @@ form.addEventListener('submit', async (e) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    finalResultScreen.classList.add('hidden'); 
     showStep(0); 
 });
