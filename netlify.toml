@@ -1,8 +1,11 @@
 [build]
-  publish = "src" # A pasta raiz do seu site
-  functions = "netlify/functions" # Onde as funções estão localizadas
+  publish = "final_site" 
+  functions = "netlify/functions" 
 
-# Redirecionamento para chamar o proxy
+[context.homologacao]
+  publish = "final_site"
+  command = "echo 'Deploying Final Site for Homologacao'"
+
 [[redirects]]
   from = "/api/respostas/*"
   to = "/.netlify/functions/proxy"

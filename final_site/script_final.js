@@ -1,12 +1,14 @@
-const RENDER_PREDICT_URL = "https://teste-vocacional-ia-stage.onrender.com/predict"; 
+const RENDER_PREDICT_URL = "https://teste-vocacional-ia-stage.onrender.com/predict"; 7
+const URL_COLETA_SHEETS = "/api/respostas"; 
+
 const form = document.getElementById('finalTestForm');
 const questionSteps = document.querySelectorAll('.question-step');
 const progressBar = document.getElementById('progressBar');
 const resultMessage = document.getElementById('result-message');
 const questionTitle = document.getElementById('question-title');
 const finalResultScreen = document.getElementById('final-result-screen');
-let currentStep = 0;
 const totalSteps = questionSteps.length;
+let currentStep = 0;
 
 function updateProgress() {
     const progress = currentStep < totalSteps ? ((currentStep + 1) / totalSteps) * 100 : 100;
@@ -23,6 +25,9 @@ function updateProgress() {
 
 function showStep(stepIndex) {
     stepIndex = Math.max(0, Math.min(stepIndex, totalSteps - 1));
+    finalResultScreen.classList.add('hidden'); 
+    resultMessage.classList.add('hidden');
+
     questionSteps.forEach((step, index) => {
         step.classList.add('hidden');
         if (index === stepIndex) {
@@ -61,50 +66,83 @@ document.querySelectorAll('.btn-prev').forEach(button => {
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    questionSteps[totalSteps - 1].classList.add('hidden');
-    resultMessage.classList.remove('hidden');
-    document.getElementById('resultText').textContent = 'Analisando suas respostas com a IA...';
-
+    
     const formData = new FormData(e.target);
     const respostas = {};
+    let allAnswered = true;
+    let missingQuestionIndex = -1;
     
     for (let i = 1; i <= totalSteps; i++) {
         const key = `q${i}`;
         const value = formData.get(key);
+        
         if (value) {
             respostas[key] = value;
         } else {
-            resultMessage.classList.add('mensagem-erro');
-            document.getElementById('resultText').textContent = 'Erro: Respostas incompletas. Volte e preencha todas.';
-            return;
+            allAnswered = false;
+            missingQuestionIndex = i - 1; 
+            break;
         }
     }
 
+    if (!allAnswered) {
+        resultMessage.classList.remove('hidden');
+        resultMessage.classList.add('mensagem-erro');
+        document.getElementById('resultText').textContent = `Erro: A questão ${missingQuestionIndex + 1} não foi respondida. Por favor, volte e preencha.`;
+        finalResultScreen.classList.add('hidden'); 
+        showStep(missingQuestionIndex); 
+        return; 
+    }
+    
+    questionSteps[totalSteps - 1].classList.add('hidden'); 
+    resultMessage.classList.remove('hidden');
+    resultMessage.classList.remove('mensagem-erro');
+    document.getElementById('resultText').textContent = 'Analisando suas respostas com a IA...';
+
     try {
-        const response = await fetch(RENDER_PREDICT_URL, {
+      
+        const predictionPromise = fetch(RENDER_PREDICT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(respostas)
         });
 
+        fetch(URL_COLETA_SHEETS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(respostas)
+        }).catch(error => {
+            console.error('AVISO: Falha silenciosa ao salvar dados no Google Sheets:', error);
+        }); 
+
+       
+        const response = await predictionPromise;
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const data = await response.json();
         
         resultMessage.classList.add('hidden'); 
-        finalResultScreen.classList.remove('hidden');
+        finalResultScreen.classList.remove('hidden'); 
         
-        if (response.ok && data.predicted_course) {
+        if (data.predicted_course) {
             document.getElementById('predicted-course').textContent = data.predicted_course;
         } else {
-            document.getElementById('predicted-course').textContent = 'Erro na previsão. Tente novamente.';
+            document.getElementById('predicted-course').textContent = 'Análise inconclusiva.';
             document.querySelector('#final-result-screen .result-title').textContent = 'Falha na Análise';
         }
 
     } catch (error) {
+        resultMessage.classList.remove('hidden');
         resultMessage.classList.add('mensagem-erro');
-        document.getElementById('resultText').textContent = 'Erro de rede. Verifique a URL do Render.';
+        document.getElementById('resultText').textContent = `Erro de conexão ou servidor. Detalhe: ${error.message}`;
+        console.error("ERRO CRÍTICO NA PREVISÃO:", error);
     }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    finalResultScreen.classList.add('hidden'); 
     showStep(0); 
 });

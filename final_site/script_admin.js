@@ -1,4 +1,4 @@
-const NETLIFY_PROXY_GET_URL = "/api/respostas";
+const NETLIFY_PROXY_GET_URL = "https://script.google.com/macros/s/AKfycbyBPFQ73lT4o5OdPSJktClb69l0OmtTAJpZPQKpdfi7zmSwtK0pnIg2AT7NxLAfgstv/exec";
 const LOGIN_STORAGE_KEY = "admin_logged_in";
 
 function checkAdminSession() {
@@ -125,19 +125,41 @@ function renderChart(data) {
 }
 
 async function fetchAndRenderDashboard() {
+    let rawData;
     try {
-        const response = await fetch(NETLIFY_PROXY_GET_URL);
-        const rawData = await response.json();
+        // Fetch com redirecionamento padrão, que o Apps Script exige
+        const response = await fetch(NETLIFY_PROXY_GET_URL); 
         
+        if (!response.ok) {
+             throw new Error(`HTTP error! status: ${response.status} (Verifique se o Apps Script foi re-implantado!)`);
+        }
+
+        const responseText = await response.text();
+        
+        // 1. Loga a resposta bruta para inspeção
+        console.log("Resposta bruta do Apps Script:", responseText); 
+        
+        // 2. Verificação de conteúdo vazio/inválido
+        if (!responseText || responseText.length < 5 || responseText.toLowerCase().includes('html') || responseText.toLowerCase().includes('erro')) {
+            throw new Error("Resposta inválida. Conteúdo não parece ser JSON de planilha.");
+        }
+        
+        // 3. Tenta processar o JSON (o ponto de falha)
+        rawData = JSON.parse(responseText); 
+        
+        // 4. Processar e Renderizar
         if (rawData && rawData.length > 1) {
             const courseCounts = processData(rawData);
             renderChart(courseCounts);
+            document.getElementById('totalRegisters').textContent = `${rawData.length - 1} Registros Coletados.`; // Exibe total
         } else {
             document.getElementById('chart-area-placeholder').innerHTML = '<p>Ainda não há dados suficientes para gerar o relatório.</p>';
         }
 
     } catch (error) {
-        document.getElementById('chart-area-placeholder').innerHTML = '<p>Erro ao carregar dados do servidor. Verifique o console.</p>';
+        // Exibir o erro detalhado no console e a mensagem de erro
+        console.error("ERRO DE CARREGAMENTO DO DASHBOARD:", error);
+        document.getElementById('chart-area-placeholder').innerHTML = `<p>Erro ao carregar dados do servidor. Detalhe: ${error.message}.</p>`;
     }
 }
 
