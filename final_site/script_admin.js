@@ -37,8 +37,10 @@ let selectedTag = null;
 
 function checkAdminSession() {
     if (localStorage.getItem(LOGIN_STORAGE_KEY) !== "true") {
+        window.location.href = 'login.html';
     }
 }
+
 
 function calculatePredictedCourse(rowObject) {
     const scores = {};

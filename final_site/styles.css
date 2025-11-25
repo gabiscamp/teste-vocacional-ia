@@ -293,7 +293,6 @@ h1, h2, h3, .form-title {
     margin: 20px 0 30px 0;
 }
 
-
 #predicted-course {
     display: block;
     font-family: var(--font-serif);
@@ -303,6 +302,8 @@ h1, h2, h3, .form-title {
     margin-top: 10px;
     text-transform: uppercase;
     letter-spacing: 1px;
+    word-break: break-word; 
+    overflow-wrap: break-word;
 }
 
 
@@ -383,7 +384,9 @@ h1, h2, h3, .form-title {
     display: flex;
     flex-wrap: wrap;
     gap: 30px;
+    padding: 0 20px; 
 }
+
 .report-area {
     flex: 2;
     background-color: white;
@@ -391,13 +394,26 @@ h1, h2, h3, .form-title {
     border-radius: var(--border-radius-lg);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
+
 .large-data-box {
-    background-color: var(--color-background);
-    min-height: 250px;
+    background-color: var(--color-secondary); 
+    color: white;
+    min-height: 150px;
     margin-top: 20px;
-    border-radius: var(--border-radius-sm);
-    padding: 20px;
-    border: 1px solid #ddd;
+    border-radius: var(--border-radius-lg);
+    padding: 30px;
+    text-align: left;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+#totalRegistersInfo {
+    font-family: var(--font-serif);
+    font-size: 1.8em;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+.large-data-box p {
+    margin: 0;
 }
 .chart-container {
     flex: 1;
@@ -414,24 +430,17 @@ h1, h2, h3, .form-title {
 }
 
 @media (max-width: 768px) {
-    .hero-section {
-        padding: 50px 0;
-    }
-    .hero-title {
-        font-size: 2.2em;
-    }
-    .hero-content-centered {
-        max-width: 100%;
-        padding: 0 10px;
-    }
     .area-buttons {
         grid-template-columns: 1fr;
     }
     .dashboard-content {
         flex-direction: column;
+        gap: 20px;
+        padding: 0;
     }
     .report-area, .chart-container {
         min-width: 100%;
+        margin-bottom: 10px; 
     }
     .login-box {
         padding: 40px 20px;
@@ -444,9 +453,9 @@ h1, h2, h3, .form-title {
     .nav-brand {
         margin-bottom: 5px;
     }
-    #predicted-course{
-        font-size: 2.2em;
-        max-width: 100%;
-        padding: 0 10px;
+
+    #predicted-course {
+        font-size: 2em;
+        padding: 0 5px;
     }
 }

@@ -25,17 +25,17 @@
             <h2>ADMINISTRADOR</h2>
 
             <div class="search-bar-container">
-                <input type="search" placeholder="Buscar..." class="search-input">
-                <button class="search-btn">🔍</button>
+                <input type="search" id="searchInput" placeholder="Buscar..." class="search-input">
+                <button id="searchBtn" class="search-btn">🔍</button>
             </div>
 
             <div class="area-tags">
-                <span class="tag">Estética</span>
-                <span class="tag">Recursos Humanos</span>
-                <span class="tag">Administração</span>
-                <span class="tag">Tecnologia da Informação</span>
-                <span class="tag">Enfermagem</span>
-                <span class="tag">Logística</span>
+                <span class="tag" data-course="Estética">Estética</span>
+                <span class="tag" data-course="Recursos Humanos">Recursos Humanos</span>
+                <span class="tag" data-course="Administração">Administração</span>
+                <span class="tag" data-course="Tecnologia da Informação">Tecnologia da Informação</span>
+                <span class="tag" data-course="Enfermagem">Enfermagem</span>
+                <span class="tag" data-course="Logística">Logística</span>
             </div>
 
             <div class="dashboard-content">
@@ -46,8 +46,8 @@
                     </button>
                     
                     <div class="large-data-box">
-                        <p id="chart-area-placeholder">Total de Registros Coletados: Carregando...</p>
-                        <p>Visualização de Dados em Tempo Real (Via Looker Studio/Gráficos JS)</p>
+                        <p id="totalRegistersInfo">Total de Registros Coletados: Carregando...</p>
+                        <p id="detailedFilterInfo" style="font-size: 0.9em; opacity: 0.8; margin-top: 5px;">Visualização de Dados.</p>
                     </div>
                 </div>
 
@@ -60,8 +60,7 @@
             </div>
         </div>
     </section>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://unpkg.com/jspdf-autotable@3.5.25/dist/jspdf.plugin.autotable.js"></script>
+
     <script src="script_admin.js"></script> 
 </body>
 </html>
