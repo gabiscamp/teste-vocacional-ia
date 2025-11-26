@@ -1,7 +1,6 @@
 const DATA_FETCH_URL = "/api/respostas"; 
 const LOGIN_STORAGE_KEY = "admin_logged_in";
 const COURSES = ['Estética', 'Recursos Humanos', 'Administração', 'Tecnologia da Informação', 'Enfermagem', 'Logística'];
-
 const PESOS_GLOSSARIO = {
     'q1': {'Azul': {'TI': 5, 'Logística': 4}, 'Vermelho': {'ADM': 5, 'RH': 4}, 'Verde': {'Enfermagem': 5, 'Estética': 4}, 'Amarelo': {'Estética': 5, 'ADM': 4}},
     'q2': {'Leao': {'ADM': 5, 'RH': 4}, 'Coruja': {'TI': 5, 'Logística': 4}, 'Golfinho': {'Enfermagem': 5, 'RH': 4}, 'Borboleta': {'Estética': 5}},
@@ -34,17 +33,26 @@ let fullData = [];
 let filteredData = []; 
 let currentChart = null; 
 let selectedTag = null; 
+let currentSearchTerm = '';
 
 function checkAdminSession() {
     if (localStorage.getItem(LOGIN_STORAGE_KEY) !== "true") {
-        window.location.href = 'login.html';
+        window.Location("login.html")
     }
 }
 
+function mapCourseName(shortName) {
+    switch (shortName) {
+        case 'TI': return 'Tecnologia da Informação';
+        case 'ADM': return 'Administração';
+        case 'RH': return 'Recursos Humanos';
+        default: return shortName;
+    }
+}
 
 function calculatePredictedCourse(rowObject) {
     const scores = {};
-    COURSES.forEach(c => scores[c] = 0);
+    const coursesMap = { 'TI': 0, 'ADM': 0, 'RH': 0, 'Logística': 0, 'Enfermagem': 0, 'Estética': 0 };
 
     for (let i = 1; i <= 25; i++) {
         const qKey = `q${i}`;
@@ -61,15 +69,19 @@ function calculatePredictedCourse(rowObject) {
         if (PESOS_GLOSSARIO[qKey] && PESOS_GLOSSARIO[qKey][answer]) {
             const weights = PESOS_GLOSSARIO[qKey][answer];
             for (const shortCourse in weights) {
-                const longCourse = Object.keys(mappedCourses).find(key => mappedCourses[key] === shortCourse);
-                if (longCourse) {
-                    scores[longCourse] += weights[shortCourse];
+                if (coursesMap.hasOwnProperty(shortCourse)) {
+                    coursesMap[shortCourse] += weights[shortCourse];
                 }
             }
         }
     }
     
-    return Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b, 'N/A');
+    const bestShortCourse = Object.keys(coursesMap).reduce((a, b) => coursesMap[a] > coursesMap[b] ? a : b, 'N/A');
+    
+    if (bestShortCourse !== 'N/A') {
+        return mapCourseName(bestShortCourse);
+    }
+    return 'N/A';
 }
 
 function processData(rawData) {
@@ -90,7 +102,7 @@ function processData(rawData) {
         });
 
         const predictedCourse = calculatePredictedCourse(rowObject);
-    
+        
         rowObject['Curso Previsto'] = predictedCourse;
         enrichedData.push(rowObject);
         
@@ -102,7 +114,6 @@ function processData(rawData) {
     return { counts: courseCounts, enrichedData: enrichedData };
 }
 
-
 function renderChart(counts) {
     const ctx = document.getElementById('courseChart').getContext('2d');
     const courses = Object.keys(counts);
@@ -113,14 +124,7 @@ function renderChart(counts) {
         currentChart.destroy();
     }
     
-    const backgroundColors = [
-        '#002147', 
-        '#37474F',
-        '#FF8C00',
-        '#B71C1C', 
-        '#2E7D32',
-        '#FFC107'  
-    ];
+    const backgroundColors = [ '#002147', '#FF8C00', '#37474F', '#B71C1C', '#2E7D32', '#FFC107' ];
 
     currentChart = new Chart(ctx, {
         type: 'doughnut',
@@ -145,26 +149,74 @@ function renderChart(counts) {
             }
         }
     });
+    
+    // Atualiza o card de destaque com a informação correta
+    const infoText = selectedTag 
+        ? `<b style="font-size: 1.5em">${totalCount}</b> Registros para ${selectedTag}`
+        : `<b style="font-size: 1.5em">${totalCount}</b> Registros Totais`;
+        
+    document.getElementById('totalRegistersInfo').innerHTML = infoText;
+    document.getElementById('detailedFilterInfo').textContent = currentSearchTerm 
+        ? `Filtro ativo: "${currentSearchTerm}"` 
+        : `Visualização completa.`;
+    
+    document.getElementById('exportReportBtn').textContent = `Exportar Relatório (${totalCount} Registros)`;
 
-    document.getElementById('chart-area-placeholder').innerHTML = `<p>Total de Registros Exibidos: <b>${totalCount}</b></p>`;
+}
+
+function applyFilters(courseFilter, searchFilter) {
+    currentSearchTerm = searchFilter || '';
+    
+    const { enrichedData: allEnrichedData } = processData(fullData);
+    
+    let filteredByCourse = allEnrichedData;
+    if (courseFilter) {
+        filteredByCourse = allEnrichedData.filter(row => row['Curso Previsto'] === courseFilter);
+        selectedTag = courseFilter;
+    } else {
+        selectedTag = null;
+    }
+
+    let finalDataRows = filteredByCourse.filter(row => {
+        if (!currentSearchTerm) return true;
+        const normalizedSearch = currentSearchTerm.toLowerCase();
+        
+        return Object.values(row).some(value => 
+            String(value).toLowerCase().includes(normalizedSearch)
+        );
+    });
+    
+    const dataWithHeaders = [fullData[0], ...finalDataRows.map(row => Object.values(row))];
+    
+    const { counts } = processData(dataWithHeaders);
+    filteredData = finalDataRows; 
+    
+    renderChart(counts);
+
+    document.querySelectorAll('.area-tags span[data-course]').forEach(t => t.classList.remove('active-tag'));
+    if (selectedTag) {
+        const tagElement = document.querySelector(`.area-tags span[data-course="${selectedTag}"]`);
+        if (tagElement) {
+            tagElement.classList.add('active-tag');
+        }
+    }
 }
 
 async function fetchAndStoreData() {
-    const placeholder = document.getElementById('chart-area-placeholder');
-    placeholder.innerHTML = '<p>Carregando dados do Google Sheets...</p>';
+    const placeholder = document.getElementById('totalRegistersInfo');
+    placeholder.innerHTML = 'Carregando dados do Google Sheets...';
     
     try {
-
         const response = await fetch(DATA_FETCH_URL, { method: 'GET' }); 
         
         if (!response.ok) {
-             throw new Error(`Erro HTTP: ${response.status}. Verifique o Netlify Function/Apps Script.`);
+             throw new Error(`Erro HTTP: ${response.status}. Verifique o Proxy.`);
         }
 
         const rawData = await response.json();
         
         if (!rawData || rawData.length < 2) {
-             placeholder.innerHTML = '<p>Ainda não há dados suficientes para gerar o relatório.</p>';
+             placeholder.innerHTML = 'Ainda não há dados suficientes para gerar o relatório.';
              return;
         }
 
@@ -174,48 +226,10 @@ async function fetchAndStoreData() {
 
     } catch (error) {
         console.error("ERRO DE CARREGAMENTO DO DASHBOARD:", error);
-        placeholder.innerHTML = `<p>Erro ao carregar dados do servidor. Detalhe: ${error.message}.</p>`;
+        document.getElementById('totalRegistersInfo').innerHTML = `<p style="font-size: 1.2em;">Erro de Conexão: ${error.message}</p>`;
+        document.getElementById('detailedFilterInfo').textContent = "Verifique o Proxy e o Apps Script.";
     }
 }
-
-function applyFilters(courseFilter, searchFilter) {
-    const dataToFilter = fullData.slice(1); 
-
-    let filteredByCourse = dataToFilter;
-    if (courseFilter) {
-
-        const { enrichedData } = processData(fullData);
-        filteredByCourse = enrichedData.filter(row => row['Curso Previsto'] === courseFilter);
-        selectedTag = courseFilter;
-    } else {
-        selectedTag = null;
-    }
-
-    const finalDataRows = filteredByCourse.filter(row => {
-        if (!searchFilter) return true;
-        const normalizedSearch = searchFilter.toLowerCase();
-
-        return Object.values(row).some(value => 
-            String(value).toLowerCase().includes(normalizedSearch)
-        );
-    });
-    const dataWithHeaders = [fullData[0], ...finalDataRows.map(row => Object.values(row))];
-
-    const { counts, enrichedData } = processData(dataWithHeaders);
-    filteredData = enrichedData; 
-
-    renderChart(counts);
-
-    const exportBtn = document.getElementById('exportReportBtn');
-    if (selectedTag) {
-        exportBtn.textContent = `Exportar Relatório Filtrado: ${selectedTag}`;
-    } else if (searchFilter) {
-        exportBtn.textContent = `Exportar Relatório Filtrado: "${searchFilter}"`;
-    } else {
-        exportBtn.textContent = `Exportar Relatório Completo (${filteredData.length} Registros)`;
-    }
-}
-
 
 function exportPDFReport() {
     if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
@@ -230,7 +244,7 @@ function exportPDFReport() {
     doc.setFontSize(18);
     doc.text(title, 15, 15);
     doc.setFontSize(10);
-    doc.text(`Total de Registros: ${filteredData.length}`, 15, 22);
+    doc.text(`Total de Registros Exportados: ${filteredData.length}`, 15, 22);
 
     if (filteredData.length === 0) {
         doc.text("Nenhum registro encontrado para exportação.", 15, 30);
@@ -239,7 +253,7 @@ function exportPDFReport() {
     }
 
     const headers = ['Curso Previsto', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19', 'q20', 'q21', 'q22', 'q23', 'q24', 'q25'];
-
+    
     const data = filteredData.map(row => {
         return headers.map(header => row[header] || '');
     });
@@ -251,8 +265,9 @@ function exportPDFReport() {
         body: data,
         startY: 30,
         theme: 'striped',
-        styles: { fontSize: 7 },
-        headStyles: { fillColor: [0, 33, 71] }, 
+        styles: { fontSize: 6.5 },
+        headStyles: { fillColor: [0, 33, 71], fontStyle: 'bold' },
+        columnStyles: { 0: { cellWidth: 30 } },
         margin: { top: 30, left: 5, right: 5 }
     });
 
@@ -264,8 +279,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     fetchAndStoreData();
     document.getElementById('exportReportBtn').addEventListener('click', exportPDFReport);
-    const searchInput = document.querySelector('.search-input');
-    const searchBtn = document.querySelector('.search-btn');
+    
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    
     searchBtn.addEventListener('click', () => {
         applyFilters(selectedTag, searchInput.value.trim());
     });
@@ -280,17 +297,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.area-tags .tag').forEach(tagElement => {
         tagElement.addEventListener('click', () => {
-            const courseName = tagElement.textContent;
+            const courseName = tagElement.getAttribute('data-course');
             
-         
-            document.querySelectorAll('.area-tags .tag').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.area-tags .tag').forEach(t => t.classList.remove('active-tag'));
 
             if (selectedTag === courseName) {
-                
                 applyFilters(null, searchInput.value.trim());
             } else {
-        
-                tagElement.classList.add('active');
+                tagElement.classList.add('active-tag');
                 applyFilters(courseName, searchInput.value.trim());
             }
         });

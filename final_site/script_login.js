@@ -10,6 +10,11 @@ function checkLoginStatus() {
     return localStorage.getItem(LOGIN_STORAGE_KEY) === "true";
 }
 
+function logout() {
+    setLoggedIn(false);
+    window.location.href = 'login.html';
+}
+
 if (document.getElementById('adminLoginForm')) {
     document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -24,3 +29,12 @@ if (document.getElementById('adminLoginForm')) {
         }
     });
 }
+
+
+if (window.location.pathname.endsWith('admin.html')) {
+    if (!checkLoginStatus()) {
+        window.location.href = 'login.html';
+    }
+}
+
+window.logout = logout;
