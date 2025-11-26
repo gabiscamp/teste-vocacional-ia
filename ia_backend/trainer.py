@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
+from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline
 import joblib
 import os
@@ -40,7 +41,7 @@ CURSOS = ['TI', 'Logística', 'ADM', 'RH', 'Enfermagem', 'Estética']
 
 
 API_URL = os.environ.get("VITE_NETLIFY_PROXY_URL") 
-MODEL_DIR = "ia_backend/"
+MODEL_DIR = "."
 MODEL_PATH = os.path.join(MODEL_DIR, "latest_model.pkl")
 
 def fetch_data(url):
@@ -78,12 +79,11 @@ def calculate_score_and_label(row):
     return 'INCONCLUSIVO' 
 
 def train_and_save_model(df):
-    """Rotula, treina o modelo de classificação e salva o artefato."""
+    """Rotula, treina o modelo de classificação, salva o artefato e mede a acurácia."""
     
     print("Iniciando rotulagem automática...")
 
     df['Curso_Recomendado'] = df.apply(calculate_score_and_label, axis=1)
-    
     df = df[df['Curso_Recomendado'] != 'INCONCLUSIVO']
 
     X = df.drop(columns=['Timestamp', 'Curso_Recomendado'], errors='ignore')
@@ -93,11 +93,15 @@ def train_and_save_model(df):
         print("Erro: Apenas um curso rotulado. Dados insuficientes para Classificação Multi-classe.")
         return
 
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=y
+    )
+
     categorical_features = X.columns.tolist() 
 
     preprocessor = ColumnTransformer(
         transformers=[
-            ('onehot', OneHotEncoder(handle_unknown='ignore'), categorical_features)
+            ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False), categorical_features)
         ],
         remainder='passthrough'
     )
@@ -107,13 +111,19 @@ def train_and_save_model(df):
         ('classifier', GaussianNB()) 
     ])
 
-    print(f"Treinando modelo com {len(df)} linhas...")
-    model.fit(X, y)
+    print(f"Treinando modelo com {len(X_train)} linhas...")
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+
+    print(f"✅ ACURÁCIA DO MODELO (TESTE): {accuracy:.4f}") 
+    print(f"Base de teste: {len(X_test)} amostras.")
+
 
     os.makedirs(MODEL_DIR, exist_ok=True)
     joblib.dump(model, MODEL_PATH)
     print(f"Modelo salvo com sucesso em: {MODEL_PATH}")
-
 
 if __name__ == "__main__":
 

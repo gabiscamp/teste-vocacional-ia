@@ -41,6 +41,6 @@ jobs:
           else
             git add ia_backend/latest_model.pkl
             git commit -m "chore: Atualiza modelo de IA após treinamento agendado"
-            git push origin feature/gabriela
+            git push origin homologacao
             echo "Modelo PKL atualizado e enviado para o GitHub."
           fi
