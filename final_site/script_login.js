@@ -1,6 +1,6 @@
 const USERNAME = "admin";
 const PASSWORD = "123";
-const LOGIN_STORAGE_KEY = "admin_logged_in";
+const LOGIN_STORAGE_KEY = "admin_logged_in"; 
 
 function setLoggedIn(isLoggedIn) {
     localStorage.setItem(LOGIN_STORAGE_KEY, isLoggedIn ? "true" : "false");
@@ -29,7 +29,6 @@ if (document.getElementById('adminLoginForm')) {
         }
     });
 }
-
 
 if (window.location.pathname.endsWith('admin.html')) {
     if (!checkLoginStatus()) {

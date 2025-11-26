@@ -1,5 +1,4 @@
 const DATA_FETCH_URL = "/api/respostas"; 
-const LOGIN_STORAGE_KEY = "admin_logged_in";
 const COURSES = ['Estética', 'Recursos Humanos', 'Administração', 'Tecnologia da Informação', 'Enfermagem', 'Logística'];
 const PESOS_GLOSSARIO = {
     'q1': {'Azul': {'TI': 5, 'Logística': 4}, 'Vermelho': {'ADM': 5, 'RH': 4}, 'Verde': {'Enfermagem': 5, 'Estética': 4}, 'Amarelo': {'Estética': 5, 'ADM': 4}},
