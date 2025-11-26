@@ -5,6 +5,8 @@ on:
     - cron: '0 0,6,12,18 * * *'
   workflow_dispatch:
 
+
+
 jobs:
   train_and_commit:
     runs-on: ubuntu-latest
