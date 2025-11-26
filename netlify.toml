@@ -10,3 +10,8 @@
   from = "/api/respostas/*"
   to = "/.netlify/functions/proxy"
   status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 301
