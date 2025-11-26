@@ -1,32 +1,30 @@
-name: Treinamento Contínuo da IA
+name: Treinamento Continuo da IA
 
 on:
   schedule:
     - cron: '0 0,6,12,18 * * *'
   workflow_dispatch:
 
-
-
 jobs:
   train_and_commit:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout do Código
+      - name: Checkout do Codigo
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.AI_TRAINING_TOKEN }}
           ref: homologacao
 
-      - name: Configuração do Ambiente Python
+      - name: Configuracao do Ambiente Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Instalação das Dependências do Treinamento
+      - name: Instalacao das Dependencias do Treinamento
         run: pip install -r ia_backend/requirements.txt
         
-      - name: Execução do Treinamento e Rotulagem Automática
+      - name: Execucao do Treinamento e Rotulagem Automatica
         env:
           VITE_NETLIFY_PROXY_URL: ${{ secrets.VITE_NETLIFY_PROXY_URL }}
         run: python ia_backend/trainer.py
@@ -39,10 +37,10 @@ jobs:
       - name: Commit do Novo Modelo PKL
         run: |
           if [ -f ia_backend/latest_model.pkl ] && git diff --quiet ia_backend/latest_model.pkl; then
-            echo "Nenhuma mudança significativa no modelo. Pulando commit."
+            echo "Nenhuma mudanca significativa no modelo. Pulando commit."
           else
             git add ia_backend/latest_model.pkl
-            git commit -m "chore: Atualiza modelo de IA após treinamento agendado"
+            git commit -m "chore: Atualiza modelo de IA apos treinamento agendado"
             git push origin homologacao
             echo "Modelo PKL atualizado e enviado para o GitHub."
           fi
