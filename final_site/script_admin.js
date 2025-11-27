@@ -148,8 +148,7 @@ function renderChart(counts) {
             }
         }
     });
-    
-    // Atualiza o card de destaque com a informação correta
+  
     const infoText = selectedTag 
         ? `<b style="font-size: 1.5em">${totalCount}</b> Registros para ${selectedTag}`
         : `<b style="font-size: 1.5em">${totalCount}</b> Registros Totais`;
